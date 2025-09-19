@@ -33,8 +33,8 @@ void spawnBlock(Game& game)
 
     // Simple 2x2 square piece
     game.blockX = {0, 1, 0, 1};
-    game.blockY = {0, 0, 1, 1};
-    game.blockZ = {19, 19, 19, 19};
+    game.blockY = {19, 19, 19, 19};
+    game.blockZ = {0, 0, 1, 1};
 }
 
 // Returns true if the block could move down, false if it hit something
@@ -48,16 +48,16 @@ bool moveBlockDown(Game& game)
         int z = game.blockZ[i];
 
         // Check if we can move down
-        if (z == 0 || game.board[x][y][z - 1] != 0)
+        if (y == 0 || game.board[x][y - 1][z] != 0)
         {
             return false;
         }
     }
-    CUBOS_INFO("Moving block down to z = {}", game.blockZ[0] - 1);
+    CUBOS_INFO("Moving block down to y = {}", game.blockY[0] - 1);
     // Move down
     for (int i = 0; i < numBlocks; i++)
     {
-        game.blockZ[i]--;
+        game.blockY[i]--;
     }
     return true;
 }
@@ -86,9 +86,6 @@ void lockFloatingBlock(Game& game)
 
 void gameLogicPlugin(Cubos& cubos)
 {
-    //cubos.depends(assetsPlugin);
-    //cubos.depends(transformPlugin);
-
     cubos.resource<Game>();
 
     cubos.system("game logic")

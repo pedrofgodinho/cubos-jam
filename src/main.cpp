@@ -10,14 +10,15 @@
 #include <cubos/engine/utils/free_camera/plugin.hpp>
 #include <cubos/engine/voxels/plugin.hpp>
 
-#include "obstacle.hpp"
-#include "player.hpp"
-#include "spawner.hpp"
+#include "cube.hpp"
 #include "gameLogic.hpp"
+
+#include <cubos/engine/transform/position.hpp>
 
 using namespace cubos::engine;
 
 static const Asset<Scene> SceneAsset = AnyAsset("/assets/scenes/main.cubos");
+static const Asset<Scene> CubeAsset = AnyAsset("/assets/scenes/cube.cubos");
 static const Asset<VoxelPalette> PaletteAsset = AnyAsset("/assets/main.pal");
 static const Asset<InputBindings> InputBindingsAsset = AnyAsset("/assets/input.bind");
 
@@ -28,17 +29,14 @@ int main(int argc, char** argv)
     cubos.plugin(defaultsPlugin);
     cubos.plugin(freeCameraPlugin);
     cubos.plugin(toolsPlugin);
-    //cubos.plugin(spawnerPlugin);
-    //cubos.plugin(obstaclePlugin);
-    //cubos.plugin(playerPlugin);
     cubos.plugin(gameLogicPlugin);
-
+    cubos.plugin(cubePlugin);
 
     cubos.startupSystem("configure settings").before(settingsTag).call([](Settings& settings) {
         settings.setString("assets.app.osPath", APP_ASSETS_PATH);
         settings.setString("assets.builtin.osPath", BUILTIN_ASSETS_PATH);
     });
-    /*
+
     cubos.startupSystem("set the palette, environment, input bindings and spawn the scene")
         .tagged(assetsTag)
         .call([](Commands commands, const Assets& assets, RenderPalette& palette, Input& input,
@@ -63,6 +61,25 @@ int main(int argc, char** argv)
                 cmds.spawn(assets.read(SceneAsset)->blueprint()).named("main");
             }
         });
+
+    cubos.system("spawn cubes for the falling block")
+        .call([](Commands cmds, const Assets& assets, const Game& game, Query<const Cube&> existingCubes) {
+            int numBlocks = game.blockX.size();
+            int existingCubesCount = 0;
+            for (auto [cube] : existingCubes)
+            {
+                (void)cube;
+                existingCubesCount++;
+            }
+
+            for (int i = existingCubesCount; i < numBlocks; i++)
+            {
+                CUBOS_INFO("Creating cube for block index {}", i);
+                cmds.spawn(*assets.read(CubeAsset)).named("cube").add(Cube{i});
+            }
+        });
+
+    /*
 
     cubos.system("detect player vs obstacle collisions")
         .call([](Query<const Player&, const CollidingWith&, const Obstacle&> collisions) {

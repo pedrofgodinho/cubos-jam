@@ -1,0 +1,16 @@
+{
+    "cubos::engine::RenderVoxelGrid": {
+        "asset": "fe862296-fab7-4bf9-b62e-3cc28448dff1",
+        "offset": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        }
+    },
+    "cubos::engine::Position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    },
+    "cubos::engine::Scale": 0.1
+}

@@ -8,8 +8,19 @@
             {"keys": ["D"]},
             {"keys": ["Right"]}
         ],
+        "up": [
+            {"keys": ["W"]},
+            {"keys": ["Up"]}
+        ],
+        "down": [
+            {"keys": ["S"]},
+            {"keys": ["Down"]}
+        ],
         "restart": [
             {"keys": ["R"]}
+        ],
+        "debug-key": [
+            {"keys": ["F1"]}
         ],
         "debug-camera-toggle": [
             {"keys": ["LControl"]}
