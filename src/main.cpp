@@ -13,6 +13,7 @@
 #include "obstacle.hpp"
 #include "player.hpp"
 #include "spawner.hpp"
+#include "gameLogic.hpp"
 
 using namespace cubos::engine;
 
@@ -27,15 +28,17 @@ int main(int argc, char** argv)
     cubos.plugin(defaultsPlugin);
     cubos.plugin(freeCameraPlugin);
     cubos.plugin(toolsPlugin);
-    cubos.plugin(spawnerPlugin);
-    cubos.plugin(obstaclePlugin);
-    cubos.plugin(playerPlugin);
+    //cubos.plugin(spawnerPlugin);
+    //cubos.plugin(obstaclePlugin);
+    //cubos.plugin(playerPlugin);
+    cubos.plugin(gameLogicPlugin);
+
 
     cubos.startupSystem("configure settings").before(settingsTag).call([](Settings& settings) {
         settings.setString("assets.app.osPath", APP_ASSETS_PATH);
         settings.setString("assets.builtin.osPath", BUILTIN_ASSETS_PATH);
     });
-
+    /*
     cubos.startupSystem("set the palette, environment, input bindings and spawn the scene")
         .tagged(assetsTag)
         .call([](Commands commands, const Assets& assets, RenderPalette& palette, Input& input,
@@ -69,6 +72,7 @@ int main(int argc, char** argv)
                 (void)player; // here to shut up 'unused variable warning', you can remove it
             }
         });
+        */
 
     cubos.run();
 }

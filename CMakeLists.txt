@@ -15,6 +15,7 @@ add_executable(game
     src/obstacle.cpp
     src/player.cpp
     src/spawner.cpp
+    src/gameLogic.cpp
 )
 
 target_link_libraries(game cubos::engine)

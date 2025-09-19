@@ -1,0 +1,129 @@
+#include "gameLogic.hpp"
+
+#include <cubos/core/ecs/reflection.hpp>
+#include <cubos/core/reflection/external/glm.hpp>
+#include <cubos/core/reflection/external/primitives.hpp>
+#include <cubos/core/reflection/external/string.hpp>
+#include <cubos/core/reflection/external/vector.hpp>
+
+#include <cubos/core/tel/logging.hpp>
+#include <cubos/engine/assets/plugin.hpp>
+#include <cubos/engine/transform/plugin.hpp>
+
+using namespace cubos::engine;
+
+CUBOS_REFLECT_IMPL(Game)
+{
+    return cubos::core::ecs::TypeBuilder<Game>("Game")
+        .withField("tickAccumulator", &Game::tickAccumulator)
+        .withField("tickPeriod", &Game::tickPeriod)
+        .withField("board", &Game::board)
+        .withField("floatingPieceColor", &Game::floatingPieceColor)
+        .withField("blockX", &Game::blockX)
+        .withField("blockY", &Game::blockY)
+        .withField("blockZ", &Game::blockZ)
+        .build();
+}
+
+void spawnBlock(Game& game)
+{
+    CUBOS_INFO("Spawning new piece");
+
+    game.floatingPieceColor = 1;
+
+    // Simple 2x2 square piece
+    game.blockX = {0, 1, 0, 1};
+    game.blockY = {0, 0, 1, 1};
+    game.blockZ = {19, 19, 19, 19};
+}
+
+// Returns true if the block could move down, false if it hit something
+bool moveBlockDown(Game& game)
+{
+    int numBlocks = game.blockX.size();
+    for (int i = 0; i < numBlocks; i++)
+    {
+        int x = game.blockX[i];
+        int y = game.blockY[i];
+        int z = game.blockZ[i];
+
+        // Check if we can move down
+        if (z == 0 || game.board[x][y][z - 1] != 0)
+        {
+            return false;
+        }
+    }
+    CUBOS_INFO("Moving block down to z = {}", game.blockZ[0] - 1);
+    // Move down
+    for (int i = 0; i < numBlocks; i++)
+    {
+        game.blockZ[i]--;
+    }
+    return true;
+}
+
+void lockFloatingBlock(Game& game)
+{
+    int numBlocks = game.blockX.size();
+    for (int i = 0; i < numBlocks; i++)
+    {
+        int x = game.blockX[i];
+        int y = game.blockY[i];
+        int z = game.blockZ[i];
+
+        game.board[x][y][z] = game.floatingPieceColor;
+    }
+
+    // Reset floating piece
+    game.floatingPieceColor = 0;
+    game.blockX.clear();
+    game.blockY.clear();
+    game.blockZ.clear();
+
+    // Reset tick lock accumulator
+    game.tickLockAccumulator = 0;
+}
+
+void gameLogicPlugin(Cubos& cubos)
+{
+    //cubos.depends(assetsPlugin);
+    //cubos.depends(transformPlugin);
+
+    cubos.resource<Game>();
+
+    cubos.system("game logic")
+        .call([](Commands cmds, const DeltaTime& dt, Game& game) {
+            // Accumulate time
+            game.tickAccumulator += dt.value();
+            if (game.tickAccumulator < game.tickPeriod)
+            {
+                return;
+            }
+            game.tickAccumulator -= game.tickPeriod;
+
+            // Tick
+
+            // Spawn block
+            if (game.floatingPieceColor == 0)
+            {
+                spawnBlock(game);
+            }
+
+            if (!moveBlockDown(game))
+            {
+                CUBOS_INFO("Block cannot move down further.");
+
+                if (game.tickLockAccumulator < game.ticksToLock)
+                {
+                    game.tickLockAccumulator++;
+                    CUBOS_INFO("Tick lock accumulator: {}", game.tickLockAccumulator);
+                } else
+                {
+                    CUBOS_INFO("Tick lock released, locking block in place.");
+                    lockFloatingBlock(game);
+                }
+            }
+        });
+}
+
+
