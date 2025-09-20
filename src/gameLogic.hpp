@@ -10,7 +10,7 @@ struct Game
     CUBOS_REFLECT;
 
     float tickAccumulator = 0.0F;
-    float tickPeriod = 0.8F;
+    float tickPeriod = 0.3F;
 
     int ticksToLock = 3;
     int tickLockAccumulator = 0;

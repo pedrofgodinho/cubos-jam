@@ -120,10 +120,88 @@ bool moveBlock(Game& game, Direction dir)
     return true;
 }
 
-void tryToClear(Game& game)
+bool tryToClear(Game& game)
 {
-    CUBOS_INFO("Trying to clear lines...");
-    // TODO
+    // --- Scan for and clear one complete X-line ---
+    for (int y = 0; y < 20; ++y)
+    {
+        for (int z = 0; z < 10; ++z)
+        {
+            bool lineIsFull = true;
+            for (int x = 0; x < 10; ++x)
+            {
+                if (game.board[x][y][z] == 0)
+                {
+                    lineIsFull = false;
+                    break;
+                }
+            }
+
+            if (lineIsFull)
+            {
+                CUBOS_INFO("Clearing X-line at y={}, z={}", y, z);
+                // Shift the slice above this line down.
+                for (int shiftY = y; shiftY < 19; ++shiftY)
+                {
+                    for (int x = 0; x < 10; ++x)
+                    {
+                        game.board[x][shiftY][z] = game.board[x][shiftY + 1][z];
+                    }
+                }
+                // Clear the top-most line of the slice.
+                for (int x = 0; x < 10; ++x)
+                {
+                    game.board[x][19][z] = 0;
+                }
+
+                game.score += 10; // Add points for one line
+                game.boardGen++;
+                return true; // A line was cleared, exit to process next tick.
+            }
+        }
+    }
+
+    // --- Scan for and clear one complete Z-line ---
+    for (int y = 0; y < 20; ++y)
+    {
+        for (int x = 0; x < 10; ++x)
+        {
+            bool lineIsFull = true;
+            for (int z = 0; z < 10; ++z)
+            {
+                if (game.board[x][y][z] == 0)
+                {
+                    lineIsFull = false;
+                    break;
+                }
+            }
+
+            if (lineIsFull)
+            {
+                CUBOS_INFO("Clearing Z-line at y={}, x={}", y, x);
+                // Shift the slice above this line down.
+                for (int shiftY = y; shiftY < 19; ++shiftY)
+                {
+                    for (int z = 0; z < 10; ++z)
+                    {
+                        game.board[x][shiftY][z] = game.board[x][shiftY + 1][z];
+                    }
+                }
+                // Clear the top-most line of the slice.
+                for (int z = 0; z < 10; ++z)
+                {
+                    game.board[x][19][z] = 0;
+                }
+
+                game.score += 10; // Add points for one line
+                game.boardGen++;
+                return true; // A line was cleared, exit to process next tick.
+            }
+        }
+    }
+
+    // No complete lines were found in the entire board.
+    return false;
 }
 
 void lockFloatingBlock(Game& game)
@@ -147,8 +225,6 @@ void lockFloatingBlock(Game& game)
     // Reset tick lock accumulator
     game.tickLockAccumulator = 0;
 
-    tryToClear(game);
-
     game.boardGen++;
 }
 
@@ -166,12 +242,22 @@ void gameLogicPlugin(Cubos& cubos)
             }
             game.tickAccumulator -= game.tickPeriod;
 
-            // Tick
 
-            // Spawn block
+
+            // If there is no block,
             if (game.floatingPieceColor == 0)
             {
-                spawnBlock(game);
+                // If there is no block, a block was just locked in place, so try to clear lines
+                if (!tryToClear(game))
+                {
+                    // If nothing to clear, spawn a new block
+                    spawnBlock(game);
+                    // This makes it so we do each step of clearing on a separate tick, so it "animates" the clearing
+                } else
+                {
+                    // If we cleared something, don't do the rest of the tick logic yet
+                    return;
+                }
             }
 
             if (!moveBlockDown(game))
