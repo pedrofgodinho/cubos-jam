@@ -18,6 +18,7 @@ CUBOS_REFLECT_IMPL(Game)
         .withField("tickAccumulator", &Game::tickAccumulator)
         .withField("tickPeriod", &Game::tickPeriod)
         .withField("board", &Game::board)
+        .withField("boardGen", &Game::boardGen)
         .withField("floatingPieceColor", &Game::floatingPieceColor)
         .withField("blockX", &Game::blockX)
         .withField("blockY", &Game::blockY)
@@ -82,6 +83,8 @@ void lockFloatingBlock(Game& game)
 
     // Reset tick lock accumulator
     game.tickLockAccumulator = 0;
+
+    game.boardGen++;
 }
 
 void gameLogicPlugin(Cubos& cubos)

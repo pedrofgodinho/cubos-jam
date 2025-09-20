@@ -12,6 +12,7 @@
 
 #include "cube.hpp"
 #include "gameLogic.hpp"
+#include "utils.hpp"
 
 #include <cubos/engine/transform/position.hpp>
 
@@ -79,6 +80,49 @@ int main(int argc, char** argv)
             }
         });
 
+    cubos.system("track existing cubes")
+    .call([](Commands cmds, const Assets& assets, const Game& game, Query<Entity, const StationaryCube&> cubes) {
+        bool needsUpdate = cubes.count() == 0;
+
+        int count = 0;
+        for (auto [ent, cube] : cubes)
+        {
+
+            if (cube.gen < game.boardGen)
+            {
+                cmds.destroy(ent);
+                needsUpdate = true;
+                count++;
+            } else
+            {
+                break;
+            }
+        }
+
+        if (needsUpdate && game.boardGen > 0)
+        {
+            CUBOS_INFO("Deleted {} old cubes for gen {}", count, game.boardGen);
+            CUBOS_INFO("Updating board to gen {}", game.boardGen);
+            for (int x = 0; x < 10; x++)
+            {
+                for (int y = 0; y < 20; y++)
+                {
+                    for (int z = 0; z < 10; z++)
+                    {
+                        if (game.board[x][y][z] != 0)
+                        {
+                            Position pos;
+                            pos.vec = gridToWorld(x, y, z);
+                            cmds.spawn(*assets.read(CubeAsset))
+                                    .named("cube")
+                                    .add(pos)
+                                    .add(StationaryCube{game.boardGen});
+                        }
+                    }
+                }
+            }
+        }
+    });
     /*
 
     cubos.system("detect player vs obstacle collisions")

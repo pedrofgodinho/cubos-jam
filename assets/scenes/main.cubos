@@ -25,9 +25,9 @@
         },
         "cubos::engine::DrawsTo#render-target": {},
         "cubos::engine::Position": {
-            "x": 0,
-            "y": 12.5,
-            "z": -25
+            "x": 50,
+            "y": 70,
+            "z": -50
         },
         "cubos::engine::Rotation": {
             "x": 0,

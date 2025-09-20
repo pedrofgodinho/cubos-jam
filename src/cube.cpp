@@ -1,6 +1,7 @@
 #include "cube.hpp"
 
 #include "gameLogic.hpp"
+#include "utils.hpp"
 
 #include <cubos/core/ecs/reflection.hpp>
 #include <cubos/core/reflection/external/glm.hpp>
@@ -20,6 +21,13 @@ CUBOS_REFLECT_IMPL(Cube)
         .build();
 }
 
+CUBOS_REFLECT_IMPL(StationaryCube)
+{
+    return cubos::core::ecs::TypeBuilder<StationaryCube>("StationaryCube")
+        .withField("gen", &StationaryCube::gen)
+        .build();
+}
+
 void cubePlugin(Cubos& cubos)
 {
     cubos.depends(assetsPlugin);
@@ -27,13 +35,16 @@ void cubePlugin(Cubos& cubos)
     cubos.depends(gameLogicPlugin);
 
     cubos.component<Cube>();
+    cubos.component<StationaryCube>();
 
     cubos.system("track falling block")
         .call([](Commands cmds, const Game& game, Query<Entity, const Cube&, Position&> cubes) {
             for (auto [ent, cube, position] : cubes)
             {
-                auto new_position = glm::vec3(
-                    game.blockX[cube.trackingIndex]*5, game.blockY[cube.trackingIndex]*5, game.blockZ[cube.trackingIndex]*5
+                auto new_position = gridToWorld(
+                    game.blockX[cube.trackingIndex],
+                    game.blockY[cube.trackingIndex],
+                    game.blockZ[cube.trackingIndex]
                 );
                 if (position.vec == new_position)
                 {
@@ -41,7 +52,6 @@ void cubePlugin(Cubos& cubos)
                 }
                 position.vec = new_position;
                 CUBOS_INFO("Updating cube {} to position {}, {}, {}", ent, position.vec.x, position.vec.y, position.vec.z);
-                CUBOS_INFO("{}", ent);
             }
         });
 }

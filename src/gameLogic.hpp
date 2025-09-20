@@ -17,6 +17,7 @@ struct Game
 
     std::vector<std::vector<std::vector<int>>> board = std::vector<std::vector<std::vector<int>>>(
         10, std::vector<std::vector<int>>(20, std::vector<int>(10, 0)));
+    int boardGen = 0;
 
     // Sparse floating piece
     int floatingPieceColor = 0;

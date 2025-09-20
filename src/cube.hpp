@@ -11,4 +11,11 @@ struct Cube
     int trackingIndex = 0;
 };
 
+struct StationaryCube
+{
+    CUBOS_REFLECT;
+
+    int gen = 0;
+};
+
 void cubePlugin(cubos::engine::Cubos& cubos);
