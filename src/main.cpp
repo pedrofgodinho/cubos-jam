@@ -57,6 +57,8 @@ int main(int argc, char** argv)
         {
             CUBOS_INFO("Setting camera position and rotation");
             pos.vec = {50.0F, 70.0F, -50.0F};
+            // Doing this in the here rather than in the scene definition cause it's easier to set the rotation
+            // doesn't seem like I can set the rotation in the scene in any way other than quaternion
             rot = Rotation::lookingAt(glm::normalize(CENTER_POS - pos.vec + glm::vec3{0, 35, 0}));
         }
     });
