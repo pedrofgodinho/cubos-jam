@@ -8,13 +8,14 @@
 #include <cubos/engine/settings/plugin.hpp>
 #include <cubos/engine/tools/plugin.hpp>
 #include <cubos/engine/utils/free_camera/plugin.hpp>
-#include <cubos/engine/voxels/plugin.hpp>
+#include <cubos/engine/render/camera/perspective.hpp>
 
 #include "cube.hpp"
 #include "gameLogic.hpp"
 #include "utils.hpp"
 
 #include <cubos/engine/transform/position.hpp>
+#include <cubos/engine/transform/rotation.hpp>
 
 using namespace cubos::engine;
 
@@ -49,6 +50,16 @@ int main(int argc, char** argv)
             input.bind(*assets.read(InputBindingsAsset));
             commands.spawn(assets.read(SceneAsset)->blueprint()).named("main");
         });
+
+    // Fix camera position
+    cubos.startupSystem("set camera position").after(assetsTag).call([](Query<PerspectiveCamera&, Position&, Rotation&> camera) {
+        for (auto [cam, pos, rot] : camera)
+        {
+            CUBOS_INFO("Setting camera position and rotation");
+            pos.vec = {50.0F, 70.0F, -50.0F};
+            rot = Rotation::lookingAt(glm::normalize(CENTER_POS - pos.vec + glm::vec3{0, 35, 0}));
+        }
+    });
 
     cubos.system("restart the game on input")
         .call([](Commands cmds, const Assets& assets, const Input& input, Query<Entity> all) {
