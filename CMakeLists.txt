@@ -15,6 +15,7 @@ add_executable(game
     src/cube.cpp
     src/gameLogic.cpp
     src/utils.cpp
+    src/camera.cpp
 )
 
 target_link_libraries(game cubos::engine)

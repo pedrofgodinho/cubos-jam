@@ -1,3 +1,5 @@
+#include "camera.hpp"
+
 #include <cubos/engine/assets/plugin.hpp>
 #include <cubos/engine/collisions/colliding_with.hpp>
 #include <cubos/engine/defaults/plugin.hpp>
@@ -33,6 +35,7 @@ int main(int argc, char** argv)
     cubos.plugin(toolsPlugin);
     cubos.plugin(gameLogicPlugin);
     cubos.plugin(cubePlugin);
+    cubos.plugin(cameraPlugin);
 
     cubos.startupSystem("configure settings").before(settingsTag).call([](Settings& settings) {
         settings.setString("assets.app.osPath", APP_ASSETS_PATH);
@@ -56,10 +59,10 @@ int main(int argc, char** argv)
         for (auto [cam, pos, rot] : camera)
         {
             CUBOS_INFO("Setting camera position and rotation");
-            pos.vec = {50.0F, 70.0F, -50.0F};
+            pos.vec = {80.0F, 60.0F, -80.0F};
             // Doing this in the here rather than in the scene definition cause it's easier to set the rotation
             // doesn't seem like I can set the rotation in the scene in any way other than quaternion
-            rot = Rotation::lookingAt(glm::normalize(CENTER_POS - pos.vec + glm::vec3{0, 35, 0}));
+            rot = Rotation::lookingAt(glm::normalize(CENTER_POS - pos.vec + glm::vec3{0, 30, 0}));
         }
     });
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <glm/vec3.hpp>
 
 const float CUBE_SCALE = 5.0f;
