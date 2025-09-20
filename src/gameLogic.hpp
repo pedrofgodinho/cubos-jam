@@ -22,11 +22,12 @@ struct Game
     // Sparse floating piece
     int floatingPieceColor = 0;
 
-    // Coordinates of each block. [block
-
+    // Coordinates of each block.
     std::vector<int> blockX{};
     std::vector<int> blockY{};
     std::vector<int> blockZ{};
+
+    int score;
 };
 
 // North is +x, East is +z

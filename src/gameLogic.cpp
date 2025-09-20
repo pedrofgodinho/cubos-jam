@@ -23,6 +23,7 @@ CUBOS_REFLECT_IMPL(Game)
         .withField("blockX", &Game::blockX)
         .withField("blockY", &Game::blockY)
         .withField("blockZ", &Game::blockZ)
+        .withField("score", &Game::score)
         .build();
 }
 
@@ -119,6 +120,12 @@ bool moveBlock(Game& game, Direction dir)
     return true;
 }
 
+void tryToClear(Game& game)
+{
+    CUBOS_INFO("Trying to clear lines...");
+    // TODO
+}
+
 void lockFloatingBlock(Game& game)
 {
     int numBlocks = game.blockX.size();
@@ -139,6 +146,8 @@ void lockFloatingBlock(Game& game)
 
     // Reset tick lock accumulator
     game.tickLockAccumulator = 0;
+
+    tryToClear(game);
 
     game.boardGen++;
 }
