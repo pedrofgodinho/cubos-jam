@@ -26,8 +26,23 @@ void cameraPlugin(Cubos& cubos)
 
     // Why am I making this system in the camera plugin? Who knows
     cubos.system("move blocks")
-        .call([](const Game& game, const DeltaTime& dt, Query<Position&> blocks) {
-            // TODO
+        .call([](const Game& game, const Input& input) {
+            if (input.justPressed("left"))
+            {
+                moveBlock(const_cast<Game&>(game), WEST);
+            }
+            if (input.justPressed("right"))
+            {
+                moveBlock(const_cast<Game&>(game), EAST);
+            }
+            if (input.justPressed("down"))
+            {
+                moveBlock(const_cast<Game&>(game), SOUTH);
+            }
+            if (input.justPressed("up"))
+            {
+                moveBlock(const_cast<Game&>(game), NORTH);
+            }
         });
 
     cubos.system("rotate camera")

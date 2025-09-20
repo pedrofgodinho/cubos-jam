@@ -29,4 +29,9 @@ struct Game
     std::vector<int> blockZ{};
 };
 
+// North is +x, East is +z
+enum Direction { NORTH, EAST, SOUTH, WEST };
+
+bool moveBlock(Game& game, Direction dir);
+
 void gameLogicPlugin(cubos::engine::Cubos& cubos);

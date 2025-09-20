@@ -63,6 +63,62 @@ bool moveBlockDown(Game& game)
     return true;
 }
 
+bool isPositionValid(const Game& game, int x, int y, int z)
+{
+    if (x < 0 || x >= 10 || y < 0 || y >= 20 || z < 0 || z >= 10)
+    {
+        return false;
+    }
+    if (game.board[x][y][z] != 0)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool moveBlock(Game& game, Direction dir)
+{
+    int dx = 0;
+    int dz = 0;
+    switch (dir)
+    {
+    case NORTH:
+        dx = 1;
+        break;
+    case EAST:
+        dz = 1;
+        break;
+    case SOUTH:
+        dx = -1;
+        break;
+    case WEST:
+        dz = -1;
+        break;
+    }
+
+    int numBlocks = game.blockX.size();
+    // Check if we can move
+    for (int i = 0; i < numBlocks; i++)
+    {
+        int x = game.blockX[i];
+        int y = game.blockY[i];
+        int z = game.blockZ[i];
+
+        if (!isPositionValid(game, x + dx, y, z + dz))
+        {
+            return false;
+        }
+    }
+
+    // Move
+    for (int i = 0; i < numBlocks; i++)
+    {
+        game.blockX[i] += dx;
+        game.blockZ[i] += dz;
+    }
+    return true;
+}
+
 void lockFloatingBlock(Game& game)
 {
     int numBlocks = game.blockX.size();
@@ -122,6 +178,9 @@ void gameLogicPlugin(Cubos& cubos)
                     CUBOS_INFO("Tick lock released, locking block in place.");
                     lockFloatingBlock(game);
                 }
+            } else
+            {
+                game.tickLockAccumulator = 0; // reset if we moved down, in case we adjust the block after landing
             }
         });
 }
