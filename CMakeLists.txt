@@ -16,6 +16,7 @@ add_executable(game
     src/gameLogic.cpp
     src/utils.cpp
     src/camera.cpp
+    src/audioAudioPlugin.cpp
 )
 
 target_link_libraries(game cubos::engine)
