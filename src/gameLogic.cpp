@@ -27,16 +27,77 @@ CUBOS_REFLECT_IMPL(Game)
         .build();
 }
 
+bool isPositionValid(const Game& game, int x, int y, int z)
+{
+    if (x < 0 || x >= 10 || y < 0 || y >= 20 || z < 0 || z >= 10)
+    {
+        return false;
+    }
+    if (game.board[x][y][z] != 0)
+    {
+        return false;
+    }
+    return true;
+}
+
 void spawnBlock(Game& game)
 {
     CUBOS_INFO("Spawning new piece");
 
-    game.floatingPieceColor = 1;
+    // Define the shapes of the pieces using relative coordinates from a pivot point.
+    // Each inner vector is {dx, dy, dz}. dy is always 0 for a flat spawn.
+    const std::vector<std::vector<std::vector<int>>> pieceShapes = {
+        // I-piece (Line)
+        {{0, 0, 0}, {0, 0, 1}, {0, 0, 2}, {0, 0, 3}},
+        // O-piece (Square)
+        {{0, 0, 0}, {1, 0, 0}, {0, 0, 1}, {1, 0, 1}},
+        // T-piece
+        {{0, 0, 0}, {1, 0, 0}, {2, 0, 0}, {1, 0, -1}},
+        // L-piece
+        {{0, 0, 0}, {0, 0, 1}, {0, 0, 2}, {1, 0, 2}},
+        // J-piece (Reversed L)
+        {{1, 0, 0}, {1, 0, 1}, {1, 0, 2}, {0, 0, 2}},
+        // S-piece
+        {{1, 0, 0}, {2, 0, 0}, {0, 0, 1}, {1, 0, 1}},
+        // Z-piece (Reversed S)
+        {{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {2, 0, 1}}};
 
-    // Simple 2x2 square piece
-    game.blockX = {0, 1, 0, 1};
-    game.blockY = {19, 19, 19, 19};
-    game.blockZ = {0, 0, 1, 1};
+    // Pick a random piece and color.
+    int pieceType = rand() % pieceShapes.size();
+    game.floatingPieceColor = (rand() % 5) + 1; // Colors 1-5
+
+    const auto& shape = pieceShapes[pieceType];
+
+    // Clear the old floating piece data.
+    game.blockX.clear();
+    game.blockY.clear();
+    game.blockZ.clear();
+
+    // Set spawn position at top-center.
+    int startX = 4;
+    int startY = 18;
+    int startZ = 4;
+
+    // Create the new piece and check for game over.
+    for (const auto& block : shape)
+    {
+        int x = startX + block[0];
+        int y = startY + block[1];
+        int z = startZ + block[2];
+
+        if (!isPositionValid(game, x, y, z))
+        {
+            CUBOS_CRITICAL("GAME OVER: Cannot spawn new piece in an occupied space.");
+            // Here you could implement a proper game over state.
+            // For now, we just stop spawning.
+            game.floatingPieceColor = 0; // Prevent further movement
+            return;
+        }
+
+        game.blockX.push_back(x);
+        game.blockY.push_back(y);
+        game.blockZ.push_back(z);
+    }
 }
 
 // Returns true if the block could move down, false if it hit something
@@ -60,19 +121,6 @@ bool moveBlockDown(Game& game)
     for (int i = 0; i < numBlocks; i++)
     {
         game.blockY[i]--;
-    }
-    return true;
-}
-
-bool isPositionValid(const Game& game, int x, int y, int z)
-{
-    if (x < 0 || x >= 10 || y < 0 || y >= 20 || z < 0 || z >= 10)
-    {
-        return false;
-    }
-    if (game.board[x][y][z] != 0)
-    {
-        return false;
     }
     return true;
 }
